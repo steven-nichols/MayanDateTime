@@ -101,6 +101,7 @@ namespace Test.MayanDate
 
         [TestCase("0.0.0.0.0", 4, MayanDateTime.TzolkinDayNames.Ajaw)]
         [TestCase("13.0.0.0.0", 4, MayanDateTime.TzolkinDayNames.Ajaw)]
+        [TestCase("9.8.9.13.0", 8, MayanDateTime.TzolkinDayNames.Ajaw)]
         [TestCase("9.9.2.4.8", 5, MayanDateTime.TzolkinDayNames.Lamat)]
         [TestCase("9.12.2.0.16", 5, MayanDateTime.TzolkinDayNames.Kib)]
         [TestCase("10.2.9.1.9", 9, MayanDateTime.TzolkinDayNames.Muluk)]
@@ -114,6 +115,7 @@ namespace Test.MayanDate
 
         [TestCase("0.0.0.0.0", 8, MayanDateTime.HaabMonthNames.Kumku)]
         [TestCase("13.0.0.0.0", 3, MayanDateTime.HaabMonthNames.Kankin)]
+        [TestCase("9.8.9.13.0", 13, MayanDateTime.HaabMonthNames.Pop)]
         [TestCase("9.9.2.4.8", 1, MayanDateTime.HaabMonthNames.Mol)]
         [TestCase("9.12.2.0.16", 14, MayanDateTime.HaabMonthNames.Yaxkin)]
         [TestCase("10.2.9.1.9", 7, MayanDateTime.HaabMonthNames.Sak)]
@@ -125,7 +127,7 @@ namespace Test.MayanDate
             Assert.AreEqual(expectedMonth, date.HaabMonthName, "Month doesn't match");
         }
 
-
+        [TestCase("9.8.9.13.0", "0603-03-24")]
         [TestCase("9.9.2.4.8", "0615-07-27")]
         [TestCase("10.2.9.1.9", "0878-07-28")]
         [TestCase("11.16.0.0.0", "1539-11-12")]
@@ -139,6 +141,7 @@ namespace Test.MayanDate
         }
 
         [TestCase("0001-01-01", "7.17.18.13.3")]
+        [TestCase("0603-03-24", "9.8.9.13.0")] 
         [TestCase("0615-07-27", "9.9.2.4.8")]
         [TestCase("0878-07-28", "10.2.9.1.9")]
         [TestCase("1539-11-12", "11.16.0.0.0")]
@@ -150,6 +153,8 @@ namespace Test.MayanDate
 
             Assert.AreEqual(longDate, expectedLongDate);
         }
+
+
 
     }
 }
