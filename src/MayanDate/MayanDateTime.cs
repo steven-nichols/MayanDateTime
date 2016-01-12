@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region License
+/**
+ * Copyright (c) Steven Nichols
+ * All rights reserved. 
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software 
+ * without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+ * to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+#endregion
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -8,23 +33,67 @@ namespace MayanDate
     /// Used to compute dates in the ancient Mayan calendar system. Dates can be tracked in the 5 digit
     /// Long Count system, the 260-day Tzolk'in cycle and/or the 365-day Haab' cycle.
     /// </summary>
-    public class MayanDateTime
+    public class MayanDateTime : IComparable<MayanDateTime>, IComparable
     {
-        #region Static Constants
+        #region Constants
 
+        //***
         // Long count constants
-        public static int DAYS_IN_BAKTUN = 144000;
-        public static int DAYS_IN_KATUN = 7200;
-        public static int DAYS_IN_TUN = 360;
-        public static int DAYS_IN_WINAL = 20;
+        //***
 
+        /// <summary>
+        /// The total number of days in one B'ak'tun.
+        /// </summary>
+        public const int DAYS_IN_BAKTUN = 144000;
+
+        /// <summary>
+        /// The total number of days in one Ka'tun.
+        /// </summary>
+        public const int DAYS_IN_KATUN = 7200;
+
+        /// <summary>
+        /// The total number of days in one Tun.
+        /// </summary>
+        public const int DAYS_IN_TUN = 360;
+
+        /// <summary>
+        /// The total number of days in one Winal.
+        /// </summary>
+        public const int DAYS_IN_WINAL = 20;
+
+
+        //***
         // Tzolk'in constants
-        public static int NUMERALS_IN_TZOLKIN_CYCLE = 13;
-        public static int DAYS_IN_TZOLKIN_CYCLE = 20;
+        //***
 
+        /// <summary>
+        /// The number of unique numerals in one Tzolk'in cycle.
+        /// </summary>
+        public const int NUMERALS_IN_TZOLKIN_CYCLE = 13;
+
+        /// <summary>
+        /// The number of named days in one Tzolk'in cycle
+        /// </summary>
+        public const int DAYS_IN_TZOLKIN_CYCLE = 20;
+
+
+        //***
         // Haab' constants
-        public static int DAYS_IN_HAAB_YEAR = 365;
-        public static int DAYS_IN_HAAB_MONTH = 20;
+        //***
+
+        /// <summary>
+        /// The number of days in one Haab' year
+        /// </summary>
+        public const int DAYS_IN_HAAB_YEAR = 365;
+
+        /// <summary>
+        /// The number of days in a Haab' month
+        /// </summary>
+        public const int DAYS_IN_HAAB_MONTH = 20;
+
+        #endregion
+
+        #region Static Read-onlys
 
         /// <summary>
         /// The reference date used to calibrate the Mayan long count date to the Gregorian calendar.
@@ -32,14 +101,24 @@ namespace MayanDate
         /// </summary>
         public static class MayanGregorianCalibrationDate
         {
-            public static DateTime Gregorian = new DateTime(1539, 11, 12);
-            public static MayanDateTime Mayan = new MayanDateTime(11, 16, 0, 0, 0);
+            public static readonly DateTime Gregorian = new DateTime(1539, 11, 12);
+            public static readonly MayanDateTime Mayan = new MayanDateTime(11, 16, 0, 0, 0);
         }
+
+        /// <summary>
+        /// Represents the largest possible value of MayanDateTime.
+        /// </summary>
+        public static readonly MayanDateTime MaxValue = new MayanDateTime(19, 19, 19, 17, 19);
+
+        /// <summary>
+        /// Represents the smallest possible value of MayanDateTime.
+        /// </summary>
+        public static readonly MayanDateTime MinValue = new MayanDateTime(0, 0, 0, 0, 0);
 
         /// <summary>
         /// Represents the current date, expressed as a MayanDateTime instance.
         /// </summary>
-        public static MayanDateTime Now = new MayanDateTime(DateTime.Now);
+        public static readonly MayanDateTime Now = new MayanDateTime(DateTime.Now);
 
         #endregion
 
@@ -411,13 +490,40 @@ namespace MayanDate
         }
 
         /// <summary>
+        /// Initializes a new instance of the MayanDateTime object to the
+        /// date specified by the number of days since the mythological creation date.
+        /// </summary>
+        /// <param name="daysSinceCreation">The number of days since 0.0.0.0.0, 4 Ajaw 8 Kumk'u (August 11, 3114 BCE).</param>
+        /// <exception cref="ArgumentOutOfRangeException">Throws if daysSinceCreation is negative or greater than 2,879,999 (19.19.19.17.19).</exception>
+        public MayanDateTime(int daysSinceCreation)
+        {
+            Init(daysSinceCreation);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the MayanDateTime structure to the 
         /// specified DateTime.
         /// </summary>
         public MayanDateTime(DateTime dateTime)
         {
             var diff = dateTime - MayanGregorianCalibrationDate.Gregorian;
-            var remainingDays = (int)diff.TotalDays + MayanGregorianCalibrationDate.Mayan.DaysSinceCreation;
+            var daysSinceCreation = (int)diff.TotalDays + MayanGregorianCalibrationDate.Mayan.DaysSinceCreation;
+
+            Init(daysSinceCreation);
+        }
+
+        /// <summary>
+        /// Initializes the public properties.
+        /// </summary>
+        protected void Init(int daysSinceCreation)
+        {
+            if (daysSinceCreation < MinValue.DaysSinceCreation ||
+                daysSinceCreation > MaxValue.DaysSinceCreation)
+            {
+                throw new ArgumentOutOfRangeException(nameof(daysSinceCreation));
+            }
+
+            var remainingDays = daysSinceCreation;
 
             var baktun = (remainingDays / DAYS_IN_BAKTUN);
             remainingDays %= DAYS_IN_BAKTUN;
@@ -433,13 +539,22 @@ namespace MayanDate
 
             var kin = remainingDays;
 
-            Init(baktun, katun, tun, winal, kin);
+            Baktun = baktun;
+            Katun = katun;
+            Tun = tun;
+            Winal = winal;
+            Kin = kin;
+
+            DaysSinceCreation = daysSinceCreation;
+
+            CalculateTzolkinDate(DaysSinceCreation);
+            CalculateHaabDate(DaysSinceCreation);
         }
 
         /// <summary>
         /// Initializes the public properties.
         /// </summary>
-        private void Init(int baktun, int katun, int tun, int winal, int kin)
+        protected void Init(int baktun, int katun, int tun, int winal, int kin)
         {
             if (baktun < 0 || baktun > 19)
             {
@@ -510,12 +625,21 @@ namespace MayanDate
         }
 
         /// <summary>
+        /// Returns a new MayanDateTime that adds the specified number of days to the value of this instance.
+        /// </summary>
+        /// <param name="days">Can be positive or negative</param>
+        public MayanDateTime AddDays(int days)
+        {
+            return new MayanDateTime(DaysSinceCreation + days);
+        }
+
+        /// <summary>
         /// Converts this MayanDateTime to a DateTime object. DateTime doesn't support dates before 1 AD
         /// so it will throw an ArgumentOutOfRangeException for dates before 7.17.18.13.3.
         /// </summary>
         public DateTime ToDateTime()
         {
-            var daysSinceJan1st1CE = this.DaysSinceCreation - MayanGregorianCalibrationDate.Mayan.DaysSinceCreation;
+            var daysSinceJan1st1CE = DaysSinceCreation - MayanGregorianCalibrationDate.Mayan.DaysSinceCreation;
             return MayanGregorianCalibrationDate.Gregorian.AddDays(daysSinceJan1st1CE);
         }
 
@@ -528,6 +652,28 @@ namespace MayanDate
                 Baktun, Katun, Tun, Winal, Kin,
                 TzolkinNumber, ((TzolkinDayNames)TzolkinDay).GetAttribute<DisplayAttribute>().Name,
                 HaabDay, ((HaabMonthNames)HaabMonth).GetAttribute<DisplayAttribute>().Name);
+        }
+
+        /// <summary>
+        /// Compares the value of this instance to a specified MayanDateTime value and indicates whether 
+        /// this instance is earlier than, the same as, or later than the specified MayanDateTime value.
+        /// </summary>
+        public int CompareTo(MayanDateTime other)
+        {
+            if(other == null)
+            {
+                return 1;
+            }
+            return DaysSinceCreation.CompareTo(other.DaysSinceCreation);
+        }
+
+        /// <summary>
+        /// Compares this instance to the specified object and returns an indication of their relative values.
+        /// </summary>
+        public int CompareTo(object obj)
+        {
+            var other = obj as MayanDateTime;
+            return CompareTo(other);
         }
     }
 }

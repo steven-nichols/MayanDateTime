@@ -9,8 +9,9 @@ namespace ConsoleApp
         {
             while (true)
             {
-                Console.Write("Enter a date: ");
+                Console.Write("Enter a date (Mayan or Gregorian): ");
                 var input = Console.ReadLine();
+                Console.WriteLine();
 
                 DateTime gregorian;
                 MayanDateTime mayan;
@@ -25,8 +26,19 @@ namespace ConsoleApp
                 {
                     mayan = MayanDateTime.Parse(input);
                     Console.WriteLine(mayan);
-                    Console.WriteLine(mayan.ToDateTime());
+                    Console.WriteLine("Day count: {0}", mayan.DaysSinceCreation);
+
+                    try
+                    {
+                        Console.WriteLine(mayan.ToDateTime().ToLongDateString());
+                    }
+                    catch
+                    {
+                        // Can't be converted to DateTime. Just ignore.
+                    }
                 }
+
+                Console.WriteLine();
             }
         }
     }

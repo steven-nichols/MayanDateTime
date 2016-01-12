@@ -1,4 +1,29 @@
-﻿using NUnit.Framework;
+﻿#region License
+/**
+ * Copyright (c) Steven Nichols
+ * All rights reserved. 
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software 
+ * without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+ * to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+#endregion
+
+using NUnit.Framework;
 using MayanDate;
 using System;
 
@@ -73,6 +98,85 @@ namespace Test.MayanDate
         public void MayanDateTime_TooLargeKin_ThrowsArgumentOutOfRangeException()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => new MayanDateTime(0, 0, 0, 0, 21));
+        }
+
+        [Test]
+        public void MayanDateTime_LargestDate_NoErrors()
+        {
+            var date = new MayanDateTime(19, 19, 19, 17, 19);
+            
+            Assert.AreEqual(19, date.Baktun);
+            Assert.AreEqual(19, date.Katun);
+            Assert.AreEqual(19, date.Tun);
+            Assert.AreEqual(17, date.Winal);
+            Assert.AreEqual(19, date.Kin);
+        }
+
+        [Test]
+        public void AddDays_1Day_IncrementsDateBy1Day()
+        {
+            var originalDate = new MayanDateTime(13, 0, 0, 0, 0);
+            var newDate = originalDate.AddDays(1);
+
+            Assert.AreEqual(originalDate.DaysSinceCreation + 1, newDate.DaysSinceCreation);
+        }
+
+        [Test]
+        public void AddDays_Negative1Day_DecrementsDateBy1Day()
+        {
+            var originalDate = new MayanDateTime(13, 0, 0, 0, 0);
+            var newDate = originalDate.AddDays(-1);
+
+            Assert.AreEqual(originalDate.DaysSinceCreation - 1, newDate.DaysSinceCreation);
+        }
+
+        [Test]
+        public void MayanDateTime_AddDayToLargestDate_ThrowsOutOfRangeException()
+        {
+            var date = new MayanDateTime(19, 19, 19, 17, 19);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => date.AddDays(1));
+        }
+
+        [Test]
+        public void MayanDateTime_SubtractDayFromSmallestDate_ThrowsOutOfRangeException()
+        {
+            var date = new MayanDateTime(0, 0, 0, 0, 0);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => date.AddDays(-1));
+        }
+
+        [Test]
+        public void CompareTo_LaterDate_ReturnsLessThanZero()
+        {
+            var pakalsBirthday = new MayanDateTime(9, 8, 9, 13, 0);
+            var pakalsDeath = new MayanDateTime(9, 12, 11, 5, 18);
+
+            var result = pakalsBirthday.CompareTo(pakalsDeath);
+
+            Assert.Less(result, 0);
+        }
+
+        [Test]
+        public void CompareTo_EarlierDate_ReturnsGreaterThanZero()
+        {
+            var pakalsBirthday = new MayanDateTime(9, 8, 9, 13, 0);
+            var pakalsDeath = new MayanDateTime(9, 12, 11, 5, 18);
+
+            var result = pakalsDeath.CompareTo(pakalsBirthday);
+
+            Assert.Greater(result, 0);
+        }
+
+        [Test]
+        public void CompareTo_SameDate_ReturnsZero()
+        {
+            var date1 = new MayanDateTime(9, 8, 9, 13, 0);
+            var date2 = new MayanDateTime(9, 8, 9, 13, 0);
+
+            var result = date1.CompareTo(date2);
+
+            Assert.AreEqual(0, result);
         }
 
         [Test]
