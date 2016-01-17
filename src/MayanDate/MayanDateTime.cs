@@ -460,19 +460,49 @@ namespace MayanDate
 
         /// <summary>
         /// Converts the string representation of a date and time to its MayanDateTime equivalent.
+        /// Valid formats are the five-digit long count, e.g., "7.14.2.9.3".
         /// </summary>
         /// <param name="s">A string that contains a date to convert.</param>
-        /// <returns></returns>
+        /// <returns>The converted MayanDateTime.</returns>
+        /// <exception cref="FormatException">Thrown if the input is not a valid Mayan date representation.</exception>
         public static MayanDateTime Parse(string s)
         {
+            MayanDateTime mayanDateTime;
+            if(TryParse(s, out mayanDateTime))
+            {
+                return mayanDateTime;
+            }
+            throw new FormatException("The input is not a valid Mayan date representation.");
+        }
+
+        /// <summary>
+        /// Tries to converts the string representation of a date and time to its MayanDateTime equivalent.
+        /// Valid formats are the five-digit long count, e.g., "7.14.2.9.3".
+        /// </summary>
+        /// <param name="s">A string that contains a date to convert.</param>
+        /// <param name="mayanDateTime">The converted MayanDateTime.</param>
+        /// <returns>A value indicating whether the input was parsed successfully.</returns>
+        public static bool TryParse(string s, out MayanDateTime mayanDateTime)
+        {
+            mayanDateTime = null;
+            if (string.IsNullOrEmpty(s))
+            {
+                return false;
+            }
+
+            // Try to parse the input as a five-digit long count
             var longCountRegex = new Regex(@"(\d{1,2})\.(\d{1,2})\.(\d{1,2})\.(\d{1,2})\.(\d{1,2})");
             var match = longCountRegex.Match(s);
-
-            return new MayanDateTime(int.Parse(match.Groups[1].Value),
-                                     int.Parse(match.Groups[2].Value),
-                                     int.Parse(match.Groups[3].Value),
-                                     int.Parse(match.Groups[4].Value),
-                                     int.Parse(match.Groups[5].Value));
+            if (match.Success)
+            {
+                mayanDateTime = new MayanDateTime(int.Parse(match.Groups[1].Value),
+                                                  int.Parse(match.Groups[2].Value),
+                                                  int.Parse(match.Groups[3].Value),
+                                                  int.Parse(match.Groups[4].Value),
+                                                  int.Parse(match.Groups[5].Value));
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -650,8 +680,8 @@ namespace MayanDate
         {
             return string.Format("{0}.{1}.{2}.{3}.{4}, {5} {6} {7} {8}",
                 Baktun, Katun, Tun, Winal, Kin,
-                TzolkinNumber, ((TzolkinDayNames)TzolkinDay).GetAttribute<DisplayAttribute>().Name,
-                HaabDay, ((HaabMonthNames)HaabMonth).GetAttribute<DisplayAttribute>().Name);
+                TzolkinNumber, TzolkinDayName.GetAttribute<DisplayAttribute>()?.Name ?? TzolkinDayName.ToString(),
+                HaabDay, HaabMonthName.GetAttribute<DisplayAttribute>()?.Name ?? HaabMonthName.ToString());
         }
 
         /// <summary>

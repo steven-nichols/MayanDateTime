@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MayanDateTime</id>
+    <version>1.2.0</version>
+    <authors>Steven Nichols</authors>
+    <owners>Steven Nichols</owners>
+    <description>MayanDateTime is a C# library for working with dates in the Maya calendar system.</description>
+    <licenseUrl>https://github.com/steven-nichols/MayanDateTime/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/steven-nichols/MayanDateTime</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/steven-nichols/MayanDateTime/master/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>https://github.com/steven-nichols/MayanDateTime/releases</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>mayan calendar datetime</tags>
+    <dependencies/>
+  </metadata>
+  <files>
+    <file src="..\..\src\MayanDate\bin\Release\net40\MayanDate.dll" target="lib/net40" />
+    <file src="..\..\src\MayanDate\bin\Release\net40\MayanDate.pdb" target="lib/net40" />
+    <file src="..\..\src\MayanDate\bin\Release\net45\MayanDate.dll" target="lib/net45" />
+    <file src="..\..\src\MayanDate\bin\Release\net45\MayanDate.pdb" target="lib/net45" />
+    <file src="..\..\src\MayanDate\*.cs" target="src" />
+  </files>
+</package>
