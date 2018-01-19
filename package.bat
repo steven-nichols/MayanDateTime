@@ -1,7 +1,7 @@
 @ECHO OFF
 SETLOCAL
 SET NUGET=src\.nuget\nuget.exe
-SET MSBUILD="%ProgramFiles(x86)%\MSBuild\14.0\Bin\MsBuild.exe"
+SET MSBUILD="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MsBuild.exe"
 
 %MSBUILD% src\MayanDate\MayanDate.csproj /t:Clean,Build /p:Configuration="Release 4.0"
 IF ERRORLEVEL 1 EXIT /b 1

@@ -1,12 +1,12 @@
 ﻿#region License
 /**
  * Copyright (c) Steven Nichols
- * All rights reserved. 
+ * All rights reserved.
  *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software 
+ * software and associated documentation files (the "Software"), to deal in the Software
  * without restriction, including without limitation the rights to use, copy, modify, merge,
  * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
  * to whom the Software is furnished to do so, subject to the following conditions:
@@ -25,6 +25,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MayanDate
@@ -373,7 +374,7 @@ namespace MayanDate
         #endregion
 
         #region Public Properties
-        
+
         /// <summary>
         /// The b'ak'tun is the first digit of the long count date.
         /// Range 1 to 20.
@@ -405,13 +406,13 @@ namespace MayanDate
 
 
         /// <summary>
-        /// The numerical portion of Tzolk'in date. 
+        /// The numerical portion of Tzolk'in date.
         /// Range 1 to 13.
         /// </summary>
         public int TzolkinNumber { get; protected set; }
 
         /// <summary>
-        /// The sequence number of the Tzolk'in day. 
+        /// The sequence number of the Tzolk'in day.
         /// Range 1 to 20.
         /// </summary>
         public int TzolkinDay { get; protected set; }
@@ -506,7 +507,7 @@ namespace MayanDate
         }
 
         /// <summary>
-        /// Initializes a new instance of the MayanDateTime structure to the 
+        /// Initializes a new instance of the MayanDateTime structure to the
         /// specified Mayan Long Count date.
         /// </summary>
         /// <param name="baktun">The B'ak'tun (0 through 19)</param>
@@ -524,14 +525,16 @@ namespace MayanDate
         /// date specified by the number of days since the mythological creation date.
         /// </summary>
         /// <param name="daysSinceCreation">The number of days since 0.0.0.0.0, 4 Ajaw 8 Kumk'u (August 11, 3114 BCE).</param>
-        /// <exception cref="ArgumentOutOfRangeException">Throws if daysSinceCreation is negative or greater than 2,879,999 (19.19.19.17.19).</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Throws if daysSinceCreation is negative or greater than 2,879,999 (19.19.19.17.19).
+        /// </exception>
         public MayanDateTime(int daysSinceCreation)
         {
             Init(daysSinceCreation);
         }
 
         /// <summary>
-        /// Initializes a new instance of the MayanDateTime structure to the 
+        /// Initializes a new instance of the MayanDateTime structure to the
         /// specified DateTime.
         /// </summary>
         public MayanDateTime(DateTime dateTime)
@@ -620,7 +623,7 @@ namespace MayanDate
         }
 
         /// <summary>
-        /// Computes the Tzolk'in date which is the combination of one of twenty named 
+        /// Computes the Tzolk'in date which is the combination of one of twenty named
         /// days and one of 13 numbers which produce 260 (20 x 13) unique days.
         /// </summary>
         protected void CalculateTzolkinDate(int daysSinceCreation)
@@ -629,7 +632,7 @@ namespace MayanDate
             // Tzolk'in date is counted forward from the day of creation which was 4 Ajaw.
             //***
             TzolkinNumber = (4 + daysSinceCreation) % NUMERALS_IN_TZOLKIN_CYCLE;
-            
+
             //***
             // The calculation is performed using modulo arithmetic (0-19) which is then
             // incremented by 1 to change the range to 1-20. Counting starts from 4 Ajaw
@@ -646,7 +649,7 @@ namespace MayanDate
         protected void CalculateHaabDate(int daysSinceCreation)
         {
             //***
-            // Haab' starts from 8 Kumk'u which is the 9th day of the 18th month. 
+            // Haab' starts from 8 Kumk'u which is the 9th day of the 18th month.
             // There are 17 days to the start of the next year.
             //***
             var daySinceNewYear = (DaysSinceCreation + DAYS_IN_HAAB_YEAR - 17) % DAYS_IN_HAAB_YEAR;
@@ -685,7 +688,95 @@ namespace MayanDate
         }
 
         /// <summary>
-        /// Compares the value of this instance to a specified MayanDateTime value and indicates whether 
+        /// Returns a custom string representation specified by the format string parameter.
+        /// </summary>
+        public string ToString(string formatStr)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (formatStr == null)
+            {
+                return string.Empty;
+            }
+
+            for(int i = 0; i < formatStr.Length; i++)
+            {
+                char token = formatStr[i];
+                if (token == '%' && ++i < formatStr.Length)
+                {
+                    switch (formatStr[i])
+                    {
+                        case '%':
+                            // Escaped percent sign
+                            sb.Append('%');
+                            break;
+                        case 'c':
+                            // Long count days since creation
+                            sb.Append(DaysSinceCreation);
+                            break;
+                        case 'L':
+                            // Formatted long count
+                            sb.AppendFormat("{0}.{1}.{2}.{3}.{4}", Baktun, Katun, Tun, Winal, Kin);
+                            break;
+                        case 'b':
+                            // Baktun number
+                            sb.Append(Baktun);
+                            break;
+                        case 'k':
+                            // Katun number
+                            sb.Append(Katun);
+                            break;
+                        case 'u':
+                            // Tun number
+                            sb.Append(Tun);
+                            break;
+                        case 'w':
+                            // Winal number
+                            sb.Append(Winal);
+                            break;
+                        case 'i':
+                            // Kin number
+                            sb.Append(Kin);
+                            break;
+                        case 't':
+                            // Tzolkin number
+                            sb.Append(TzolkinNumber);
+                            break;
+                        case 'T':
+                            // Tzolkin day
+                            sb.Append(TzolkinDay);
+                            break;
+                        case 'D':
+                            // Tzolkin day name
+                            sb.Append(TzolkinDayName.GetAttribute<DisplayAttribute>().Name);
+                            break;
+                        case 'h':
+                            // Haab day number
+                            sb.Append(HaabDay);
+                            break;
+                        case 'H':
+                            // Haab month
+                            sb.Append(HaabMonth);
+                            break;
+                        case 'M':
+                            // Haab month name
+                            sb.Append(HaabMonthName.GetAttribute<DisplayAttribute>().Name);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    sb.Append(token);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Compares the value of this instance to a specified MayanDateTime value and indicates whether
         /// this instance is earlier than, the same as, or later than the specified MayanDateTime value.
         /// </summary>
         public int CompareTo(MayanDateTime other)

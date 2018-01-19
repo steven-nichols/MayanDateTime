@@ -46,6 +46,36 @@ Console.WriteLine(pakalsDeath);
 // Displays "9.12.11.5.18, 6 Etz'nab 11 Yax"
 ```
 
+### Custom Date Format Strings
+The display of the Maya date can be completely customzied by passing a format string to the 
+MayanDateTime.ToString() method. The below example shows how to display only the Tzolk'in
+day number and day name for a particular date:
+
+```c#
+var pakalsDeath = new MayanDateTime(9, 12, 11, 5, 18);
+Console.WriteLine(pakalsDeath.ToString("%t %D"));
+// Displays "6 Etz'nab"
+```
+
+Specifiers in the format string are replaced with their computed value. Each specifier begins with the percent (`%`) symbol. The following table lists the valid date format specifiers.
+
+| Specifier | Description                                   | Example                           |
+|-----------|-----------------------------------------------|-----------------------------------|
+| `%L`      | Standard long count format                    | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `9.12.11.5.18` |
+| `%c`      | Total day count since creation   | MayanDateTime(0, 0, 0, 1, 5) -> `25` (1 * 20 + 5 = 25)|
+| `%i`      | First (smallest) digit of the long count (k'in)| "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `18` |
+| `%w`      | Second digit of the long count (winal)        | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `5` |
+| `%u`      | Third digit of the long count (tun)           | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `11` |
+| `%k`      | Fourth digit of the long count (k'atun)       | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `12` |
+| `%b`      | Fifth (largest) digit of the long count (b'ak'tun)| "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `9` |
+| `%t`      | Tzolkin digit                                 | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `6`|
+| `%T`      | Tzolkin day number                            | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `18` (Etz'nab is the 18th named day)|
+| `%D`      | Tzolkin day name                              | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `Etz'nab` |
+| `%h`      | Haab digit                                    | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `11`|
+| `%H`      | Haab month number                             | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `10` (Yax is the 10th month)|
+| `%M`      | Haab month name                               | "9.12.11.5.18, 6 Etz'nab 11 Yax" -> `Yax` |
+| `%%`      | Escape character                              | "%% %%b" => `% %b` |
+
 ### Date Range
 MayanDateTime supports dates between `0.0.0.0.0` (August 11, 3114 BCE) and `19.19.19.17.19` (October 12, 4772 CE). However, the C# DateTime class cannot support dates before 1 CE. As a result,  `.ToDateTime()` will throw an ArgumentOutOfRangeException for dates before `7.17.18.13.3`.
 
